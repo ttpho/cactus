@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cactus:
+    path: ../../cactus-flutter
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
