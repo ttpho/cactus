@@ -427,10 +427,10 @@ class CactusContext {
       cCompParams.ref.mirostat_eta = params.mirostatEta;
       cCompParams.ref.ignore_eos = params.ignoreEos;
       cCompParams.ref.n_probs = params.nProbs;
-      cCompParams.ref.stop_sequences = stopSequencesC ?? nullptr;
+      cCompParams.ref.stop_sequences = stopSequencesC;
       cCompParams.ref.stop_sequence_count = params.stopSequences?.length ?? 0;
       cCompParams.ref.grammar = grammarC;
-      cCompParams.ref.token_callback = tokenCallbackC ?? nullptr;
+      cCompParams.ref.token_callback = tokenCallbackC;
       
       final status = bindings.completion(_handle, cCompParams, cResult);
 

@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:cactus/cactus.dart';
 
 CactusContext? cactusContext;
@@ -38,10 +40,42 @@ class LLMModel {
     }
   }
 
+  Future<String?> test() async {
+    // create a port
+    final p = ReceivePort();
+    // spawn the isolate and wait for it to complete
+    await Isolate.spawn(_loader, p.sendPort);
+    // get and return the result data
+    return await p.first;
+  }
+
+  // 3. json parsing
+  Future<void> _loader(SendPort p) async {
+    final result = await hello();
+    Isolate.exit(p, result);
+  }
+
+  Future<String?> hello() async {
+    final messages = [ChatMessage(role: 'user', content: "Hello")];
+    final completionParams = CactusCompletionParams(
+      messages: messages,
+      stopSequences: ['<|im_end|>'],
+      onNewToken: (token) {
+        if (token == '<|im_end|>') {
+          return false;
+        }
+        return true;
+      },
+    );
+    final result = await cactusContext?.completion(completionParams);
+    cactusContext?.free();
+    return result?.text;
+  }
+
   Future<String?> tranlate(
     String text,
-    Function(String?) onPartialCallback,
-    Function(String?) onCompleteCallback,
+    Function(String?)? onPartialCallback,
+    Function(String?)? onCompleteCallback,
   ) async {
     final messages = [
       ChatMessage(role: 'system', content: promptTranlate.trim()),
@@ -51,12 +85,12 @@ class LLMModel {
       messages: messages,
       stopSequences: ['<|im_end|>'],
       onNewToken: (token) {
-        onPartialCallback(token);
+        if (onPartialCallback != null) onPartialCallback(token);
         return true; // Continue generation
       },
     );
     final result = await cactusContext?.completion(completionParams);
-    onCompleteCallback(result?.text);
+    if (onCompleteCallback != null) onCompleteCallback(result?.text);
     cactusContext?.free();
     return result?.text;
   }

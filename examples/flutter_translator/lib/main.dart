@@ -37,17 +37,12 @@ class _HomeWidgetPageState extends State<HomeWidgetPage> {
   @override
   void initState() {
     super.initState();
-    _englishTextController.text = """
-業者間で取引された米の価格は再び値上がりし過去最高値となりました。
-
-一方、スーパーに届いた備蓄米は7％にとどまっています。
-
-業者の間で取引された先月の米の価格は60キロあたりで去年の同じ月より1万円以上高い2万7102円で、前の月よりも1200円以上高く、2カ月ぶりに前の月を上回り、過去最高値を更新しました。
-""";
+    _englishTextController.text = "業者間";
   }
 
   // Controllers for the text input fields.
   final TextEditingController _englishTextController = TextEditingController();
+  final ValueNotifier<String> _token = ValueNotifier<String>("");
 
   @override
   void dispose() {
@@ -72,6 +67,12 @@ class _HomeWidgetPageState extends State<HomeWidgetPage> {
                 ),
                 const SizedBox(height: 20),
                 Text(label),
+                ValueListenableBuilder<String>(
+                  builder: (BuildContext context, String value, Widget? child) {
+                    return Text(value);
+                  },
+                  valueListenable: _token,
+                ),
                 // English text input area
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -118,9 +119,7 @@ class _HomeWidgetPageState extends State<HomeWidgetPage> {
             text,
             (token) {
               print("onPartialCallback: $token ");
-              setState(() {
-                label = token ?? "???";
-              });
+              _token.value = "$token";
             },
             (param) {
               print("onCompleteCallback: $param ");
